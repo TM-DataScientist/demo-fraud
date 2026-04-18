@@ -36,11 +36,11 @@ This demo shows the usage of MLRun and the feature store.
 
 The demo showcases:
 
-- [**Explore and analyze the data (EDA)**](01-exploratory-data-analysis.ipynb)
-- [**Prepare and train offline data**](02-interactive-data-preparation.ipynb)
-- [**Ingest and prepare data**](03-ingest-with-feature-store.ipynb)
-- [**Build an automated ML pipeline**](04-train-test-pipeline.ipynb)
-- [**Model serving**](05-real-time-serving-pipeline.ipynb)
+- [**Explore and analyze the data (EDA)**](notebooks/01-exploratory-data-analysis.ipynb)
+- [**Prepare and train offline data**](notebooks/02-interactive-data-preparation.ipynb)
+- [**Ingest and prepare data**](notebooks/03-ingest-with-feature-store.ipynb)
+- [**Build an automated ML pipeline**](notebooks/04-train-test-pipeline.ipynb)
+- [**Model serving**](notebooks/05-real-time-serving-pipeline.ipynb)
 
 Fraud prevention specifically is a challenge as it requires processing raw transaction and events in real-time and being able to
 quickly respond and block transactions before they occur. Consider, for example, a case where you would like to evaluate the
@@ -62,7 +62,7 @@ Following the ingestion, we will create a feature vector, select the most releva
 
 1. Exploratory data analysis (EDA)
 
-- **Notebook**: [01-exploratory-data-analysis.ipynb](01-exploratory-data-analysis.ipynb)
+- **Notebook**: [01-exploratory-data-analysis.ipynb](notebooks/01-exploratory-data-analysis.ipynb)
 - **Description**: Load and analyze datasets for structure, statistical distribution, categories, and missing values. Use pre-baked functions from the MLRun hub to perform EDA and modeling.
   - Explore the transactions dataset
   - Explore the user events dataset
@@ -73,7 +73,7 @@ Following the ingestion, we will create a feature vector, select the most releva
 
 2. Interactive data preparation
 
-- **Notebook**: [02-interactive-data-preparation.ipynb](02-interactive-data-preparation.ipynb)
+- **Notebook**: [02-interactive-data-preparation.ipynb](notebooks/02-interactive-data-preparation.ipynb)
 - **Description**: Prepare three datasets: credit transactions, user events, and fraud labels, by applying transformations. User events are processed to create categorical features that capture activities like logins or password changes, which may indicate fraud. The datasets are then combined, and a target label column is generated to train and evaluate a basic model using sklearn.
 - **Key steps:**
   - Preparing the credit transaction dataset
@@ -83,7 +83,7 @@ Following the ingestion, we will create a feature vector, select the most releva
 
 3. Data ingestion and preparation using the MLRun feature store
 
-- **Notebook**: [03-ingest-with-feature-store.ipynb](03-ingest-with-feature-store.ipynb)
+- **Notebook**: [03-ingest-with-feature-store.ipynb](notebooks/03-ingest-with-feature-store.ipynb)
 - **Description**: 
 - **Key steps:**
   - MLRun installation, create the project
@@ -95,7 +95,7 @@ Following the ingestion, we will create a feature vector, select the most releva
 
 4. Model training and validation pipeline
 
-- **Notebook**: [04-train-test-pipeline.ipynb](04-train-test-pipeline.ipynb)
+- **Notebook**: [04-train-test-pipeline.ipynb](notebooks/04-train-test-pipeline.ipynb)
 - **Description**: Generate feature vectors with multiple features from one or more feature sets and feed them into an automated ML training and testing pipeline to create high-quality models.
 - **Key steps:**
   - Creating and evaluating a feature vector
@@ -111,7 +111,7 @@ Following the ingestion, we will create a feature vector, select the most releva
 
 5. Real-time application pipeline
 
-- **Notebook**: [Real-time application pipeline](05-real-time-serving-pipeline.ipynb)
+- **Notebook**: [Real-time application pipeline](notebooks/05-real-time-serving-pipeline.ipynb)
 - **Description**: Define an application pipeline that accepts a user request, enriches the request with real-time features from the feature store, and feeds the features into a three-legged ensemble that uses the newly trained models.
 - **Key steps:**
   - Defining a custom serving class
