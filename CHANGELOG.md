@@ -11,3 +11,4 @@
 - `README.md` とノートブック内の参照リンクを、`notebooks/` 配下の配置に合わせて更新。
 - 5本の notebook で、既存の英語マークダウンに対して同一セル内へ `日本語訳:` を追記。
 - 5本の notebook で、既存の英語コードコメントの直後に `# 日本語訳:` を追記。
+- `notebooks/01-exploratory-data-analysis.ipynb` の `%pip install` セルで、1文字ずつ分解されていた `source` を行単位に修正。
