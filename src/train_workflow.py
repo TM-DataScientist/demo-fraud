@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+"""不正取引検知の学習から配備までをまとめる MLRun パイプライン定義。"""
+
 import os
 
 import mlrun
@@ -24,6 +26,7 @@ from mlrun.model import HyperParamOptions
 
 
 # Create a Kubeflow Pipelines pipeline
+# Kubeflow Pipelines のパイプラインとして登録し、MLRun から再利用できるようにする。
 @dsl.pipeline(
     name="Fraud Detection Pipeline",
     description="Detecting fraud from a transactions dataset",
@@ -31,17 +34,24 @@ from mlrun.model import HyperParamOptions
 def pipeline(vector_name="transactions-fraud", features=[], label_column="is_error"):
     """
     This pipeline will train a model to detect fraud from a transactions dataset.
+    取引データ向けの特徴量取得、特徴選択、学習、評価、サービング配備を一貫実行する。
     :param vector_name: The name of the feature vector to use
     :param features: A list of features to use
     :param label_column: The name of the label column
+    :param vector_name: 利用する Feature Vector 名
+    :param features: 学習に使う特徴量一覧
+    :param label_column: ラベル列名
 
     :returns: None
+    :returns: なし
     """
 
     # Get the project
+    # 現在の MLRun プロジェクト設定を取得し、関数や成果物を参照できるようにする。
     project = mlrun.get_current_project()
 
     # Get FeatureVector
+    # Feature Store からオフライン特徴量を取得するジョブを起動する。
     get_vector_func = project.get_function("get-vector")
     get_vector_run = project.run_function(
         get_vector_func,
@@ -57,6 +67,7 @@ def pipeline(vector_name="transactions-fraud", features=[], label_column="is_err
     )
 
     # Feature selection
+    # 取得した特徴量に対して重要度ベースの特徴選択を行い、短いベクトルを作る。
     feature_selection_func = project.get_function("feature-selection")
     feature_selection_run = project.run_function(
         feature_selection_func,
@@ -80,6 +91,7 @@ def pipeline(vector_name="transactions-fraud", features=[], label_column="is_err
     ).after(get_vector_run)
 
     # train with hyper-paremeters
+    # 複数モデル候補をハイパーパラメータ付きで比較し、最良モデルを選択する。
     train_func = project.get_function("train")
     train_run = project.run_function(
         train_func,
@@ -110,6 +122,7 @@ def pipeline(vector_name="transactions-fraud", features=[], label_column="is_err
     ).after(feature_selection_run)
 
     # test and visualize your model
+    # 学習済みモデルを評価し、テストセット上の指標や可視化を生成する。
     test_func = project.get_function("evaluate")
     mlrun.run_function(
         test_func,
@@ -125,6 +138,8 @@ def pipeline(vector_name="transactions-fraud", features=[], label_column="is_err
 
     # Create a serverless function from the hub, add a feature enrichment router
     # This will enrich and impute the request with data from the feature vector
+    # Hub 由来のサービング関数に特徴量補完ルーターを追加し、
+    # 推論時に不足特徴量を Feature Vector から補えるようにする。
     serving_func = project.get_function("serving")
     serving_func.set_topology(
         "router",
@@ -135,10 +150,12 @@ def pipeline(vector_name="transactions-fraud", features=[], label_column="is_err
     )
 
     # Enable model monitoring
+    # 推論ログと推論品質を継続監視できるよう、モニタリングを有効化する。
     serving_func.set_tracking()
 
     if mlrun.mlconf.is_ce_mode():
         # Use default service
+        # CE 版では同梱サービスの接続情報を組み立てて監視用プロファイルを登録する。
         MLRUN_NAMESPACE = os.environ.get("MLRUN_NAMESPACE", "mlrun")
         tsdb_profile = DatastoreProfileTDEngine(
             name="fraud-monitoring-tsdb",
@@ -175,8 +192,10 @@ def pipeline(vector_name="transactions-fraud", features=[], label_column="is_err
             replace_creds=True,
         )
 
+    # サービング設定を保存し、学習済みモデルをひも付けてデプロイする。
     serving_func.save()
     # deploy the model server, pass a list of trained models to serve
+    # 学習ステップの出力モデルを `fraud` キーで公開する。
     project.deploy_function(
         serving_func,
         models=[{"key": "fraud", "model_path": train_run.outputs["model"]}],
